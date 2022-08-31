@@ -2,23 +2,23 @@ export class List<T> implements Iterable<T> {
   #forward: Iterable<T>
   #reverse: Iterable<T>;
 
-  [Symbol.iterator]() {
+  [Symbol.iterator](): Iterator<T> {
     return this.#forward[Symbol.iterator]()
   }
-  reverseIterable() {
+  reverseIterable(): Iterable<T> {
     return this.#reverse
   }
 
-  constructor(forward: Iterable<T> = [], reverse?: Iterable<T>) {
-    this.#forward = forward
-    this.#reverse = reverse ?? invert(forward)
+  constructor(forward?: Iterable<T>, reverse?: Iterable<T>) {
+    this.#forward = forward ?? []
+    this.#reverse = reverse ?? invert(this.#forward)
   }
 
-  static create<U = any>(...items: U[]) {
+  static create<U = any>(...items: U[]): List<U> {
     return new List(items)
   }
 
-  forEach(iteratee: (x: T) => void) {
+  forEach(iteratee: (x: T) => void): void {
     for (const item of this.#forward) iteratee(item)
   }
 
@@ -93,12 +93,12 @@ export class List<T> implements Iterable<T> {
 }
 
 function invert<T>(iterable: Iterable<T>): Iterable<T> {
-  type ListNode<T> = null | {
+  type ListNode = null | {
     item: T
-    next: ListNode<T>
+    next: ListNode
   }
 
-  let list: ListNode<T> = null
+  let list: ListNode = null
 
   return fromGenerator(function* () {
     if (!list) {
